@@ -1,0 +1,24 @@
+* {
+	padding: 0;
+	margin: 0;
+}
+
+.menu361-background {
+	width: 2px;
+	height: 2px;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 99998;
+}
+
+.menu361-container {
+	width: 64px;
+	height: 64px;
+	background-color: #ccc;
+	position: absolute;
+	top: 500px;
+	left: 500px;
+	z-index: 99999;
+	cursor: pointer;
+}
