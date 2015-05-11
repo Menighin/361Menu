@@ -10,14 +10,20 @@
 	
 	<h1>361 Menu</h1>
 	
-	<div class="menu361-background">
-		<div class="menu361-container" onmousedown="startDrag(this)" onmousemove="drag(this)" onmouseup="endDrag(this)">
-		
-		</div>
+	<div id="menu361">
+		<ul>
+			<li> Item 1 </li>
+			<li> Item 2 </li>
+			<li> Item 3 </li>
+			<li> Item 4 </li>
+		</ul>
 	</div>
 	
 	
 	<script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
 	<script type="text/javascript" src="js/361menu.js"></script>
+	<script type="text/javascript">
+		Menu361.init({initialX: 200, initialY: 200, radius: 64});
+	</script>
 	</body>
 </html>
