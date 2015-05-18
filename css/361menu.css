@@ -17,7 +17,7 @@
 	width: 64px;
 	height: 64px;
 	border-radius: 1000px;
-	background-color: rgba(100, 100, 100, 0.5);
+	background-color: rgba(100, 100, 100, 1);
 	cursor: pointer;
 	position: absolute;
 	z-index: 99999;
@@ -32,7 +32,7 @@
 	width: 32px;
 	height: 32px;
 	background-color: #66aa66;
-	border-radius: 16px;
+	border-radius: 10000px;
 	position: absolute;
 	cursor: pointer;
 }

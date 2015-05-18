@@ -1,19 +1,63 @@
 var DEBUG = true
 var DEFAULT_RADIUS = 32;
 var DEFAULT_SUBMENU_RADIUS = 16;
+var DEFAULT_TIME_TO_HIDE = 1000;
+var DEFAULT_SUB_ANIMATION_TIME = 200;
 
 /*
 
 {
-	root: ID ROOT,
-	minX: 0,
-	minY: 0,
-	maxX: 0,
-	maxY: 0,
-	radius: 64, 
+	root: "id",
+	minX: 0px,
+	minY: 0px,
+	maxX: 0px,
+	maxY: 0px,
+	radius: 64px, 
+	subRadius: 16px;
+	timeToHide: 1000ms
+	
+}
 
 */
 
+function MenuAnimation361 (menu361) {
+
+	var handle = menu361;
+
+	this.transition = {
+		update: function(c) {
+			var currentTime = Date.now();
+			var positionInAnimation = (currentTime - c.startTime) / c.duration;
+			
+			var xPosition = positionInAnimation * c.translate.x;
+			var yPosition = positionInAnimation * c.translate.y;
+			
+			c.target.style.left = c.origin.x + xPosition + 'px';
+			c.target.style.top  = c.origin.y + yPosition + 'px';
+
+			if (positionInAnimation <= 1)
+				requestAnimationFrame(function() {c.update(c)});
+			else {
+				c.target.style.left = c.origin.x + c.translate.x + 'px';
+				c.target.style.top  = c.origin.y + c.translate.y + 'px';
+				if (typeof c.callback != 'undefined' && c.callback != null)
+					c.callback(menu361);
+			}
+			
+		},
+		start: function(target, origin, translate, duration, callback) {
+			this.startTime = Date.now();
+			this.duration = duration;
+			this.origin = origin;
+			this.translate = translate;
+			this.callback = callback;
+			this.target = target;
+			var self = this;
+			requestAnimationFrame(function() {self.update(self);});
+		}
+	}
+	
+}
 
 var Menu361 = {
 
@@ -57,18 +101,29 @@ var Menu361 = {
 		// Initializing submenus
 		handle.subMenu = {};
 		handle.subMenu.isActive = false;
-		handle.subMenu.items = handle.root.getElementsByTagName("li");
-		handle.subMenu.initialPosition = (p.radius ? p.radius : DEFAULT_RADIUS) - DEFAULT_SUBMENU_RADIUS;
-		handle.subMenu.resetPosition = function() {
-			var items = this.items;
+		handle.subMenu.timeToHide = p.timeToHide ? p.timeToHide : DEFAULT_TIME_TO_HIDE;
+		
+		// Positioning
+		handle.subMenu.items = handle.root.getElementsByTagName('li');
+		handle.subMenu.initialPosition = (p.radius ? p.radius : DEFAULT_RADIUS) - (p.subRadius ? p.subRadius : DEFAULT_SUBMENU_RADIUS);
+		handle.subMenu.resetPosition = function(menu) {
+			var items = menu.subMenu.items;
 			for (var i = 0; i < items.length; i++) {
-				items[i].style.left = items[i].style.top = this.initialPosition + "px";
+				items[i].style.left = items[i].style.top = menu.subMenu.initialPosition + 'px';
 			}
 		}
-		handle.subMenu.resetPosition();
+		
+		handle.subMenu.resetPosition(handle);
+		
+		var items = handle.subMenu.items;
+		for (var i = 0; i < items.length; i++) {
+			items[i].onmouseover = this.showSubMenu;
+			items[i].style.height = 2 * (p.subRadius ? p.subRadius : DEFAULT_SUBMENU_RADIUS) + 'px';
+			items[i].style.width  = 2 * (p.subRadius ? p.subRadius : DEFAULT_SUBMENU_RADIUS) + 'px';
+		}
 		
 		handle.onmouseover = Menu361.showSubMenu;
-		handle.onmouseout = Menu361.hideSubMenu;
+		handle.onmouseout  = Menu361.hideSubMenu;
 		
 		handle.root.insertBefore(handle, handle.root.firstChild);
 		handle.radius = p.radius ? p.radius : DEFAULT_RADIUS;
@@ -79,6 +134,9 @@ var Menu361 = {
 	},
 
 	start : function(e) {
+	
+		if (DEBUG) log("Start dragging...");
+		
 		var handle = this;
 		
 		e = Menu361.fixE(e);
@@ -102,6 +160,9 @@ var Menu361 = {
 	},
 
 	drag : function(e) {
+		
+		if (DEBUG) log("Dragging...");
+	
 		e = Menu361.fixE(e);
 		var handle = Menu361.obj;
 		
@@ -129,6 +190,9 @@ var Menu361 = {
 	},
 
 	end : function() {
+	
+		if (DEBUG) log("Stopped dragging...");
+		
 		document.onmousemove = null;
 		document.onmouseup   = null;
 		Menu361.obj.root.onDragEnd(	parseInt(Menu361.obj.root.style.left), parseInt(Menu361.obj.root.style.top));
@@ -136,27 +200,69 @@ var Menu361 = {
 	
 	showSubMenu : function() {
 		
+		if(DEBUG) log("Showing sub-menus...");
+		
 		var handle = Menu361.obj;
 		if (!handle.subMenu.isActive) {
 			var items = handle.subMenu.items;
 			var sections = Math.trunc(360 / items.length);
 			var degrees = -90;
 			for (var i = 0; i < items.length; i++) {
-				items[i].style.top  = parseInt(items[i].style.top ) + Math.round(Math.sin(toRadians(degrees)) * handle.radius) + "px";
-				items[i].style.left = parseInt(items[i].style.left) + Math.round(Math.cos(toRadians(degrees)) * handle.radius) + "px";
+				var anim = new MenuAnimation361(handle);
+				
+				var origin = { x: handle.subMenu.initialPosition, y: handle.subMenu.initialPosition };
+				
+				
+				var translate = {
+					x: parseInt(Math.round(Math.cos(toRadians(degrees)) * (handle.radius + parseInt(items[i].style.width) / 2 ))),
+					y: parseInt(Math.round(Math.sin(toRadians(degrees)) * (handle.radius + parseInt(items[i].style.height) / 2)))
+				};
+				
+				anim.transition.start( items[i], origin, translate, DEFAULT_SUB_ANIMATION_TIME);
 				degrees += sections;
 			}
 			
 			handle.subMenu.isActive = true;
+		} else if (handle.subMenu.outTimer)  {
+			clearTimeout(handle.subMenu.outTimer);
 		}
 	},
 	
 	hideSubMenu : function(e) {
+	
+		if(DEBUG) log("Hiding sub-menus...");
+	
 		e = Menu361.fixE(e);
+		var handle = Menu361.obj;
+		
 		var hoveredElement = document.elementFromPoint(e.clientX, e.clientY);
+		
 		if (hoveredElement && hoveredElement.tagName != "LI") {
-			Menu361.obj.subMenu.resetPosition();
-			Menu361.obj.subMenu.isActive = false;
+			clearTimeout(handle.subMenu.outTimer);
+			handle.subMenu.outTimer = setTimeout(function() {
+					Menu361.obj.subMenu.isActive = false;
+					Menu361.obj.subMenu.outTimer = null;
+					
+					
+					var items = Menu361.obj.subMenu.items;
+					var degrees = -90;
+					var sections = Math.trunc(360 / items.length);
+					for (var i = 0; i < items.length; i++) {
+						var anim = new MenuAnimation361(handle);
+						
+						var origin = { x: parseInt(items[i].style.left), y: parseInt(items[i].style.top) };
+						
+						var destin = {
+							x: -parseInt(Math.round(Math.cos(toRadians(degrees)) * (handle.radius + parseInt(items[i].style.width) / 2 ))),
+							y: -parseInt(Math.round(Math.sin(toRadians(degrees)) * (handle.radius + parseInt(items[i].style.height) / 2)))
+						};
+						
+						anim.transition.start( items[i], origin, destin, DEFAULT_SUB_ANIMATION_TIME, Menu361.obj.subMenu.resetPosition);
+						degrees += sections;
+					}
+					
+					
+				}, handle.subMenu.timeToHide);
 		} else if(hoveredElement) {
 			hoveredElement.onmouseout = Menu361.hideSubMenu;
 		}
