@@ -17,7 +17,9 @@
 	width: 64px;
 	height: 64px;
 	border-radius: 1000px;
-	background-color: rgba(100, 100, 100, 1);
+	background-image: url("../img/menu-ico.png"), radial-gradient(#00608c, #0087c6);
+	background-position: center;
+	background-repeat: no-repeat;
 	cursor: pointer;
 	position: absolute;
 	z-index: 99999;
@@ -35,6 +37,9 @@
 	border-radius: 10000px;
 	position: absolute;
 	cursor: pointer;
+	background-image: url("../img/image-ico.png"), radial-gradient(#aaa, #777);
+	background-position: center;
+	background-repeat: no-repeat;
 }
 
 #menu361 li:hover {

@@ -57,6 +57,40 @@ function MenuAnimation361 (menu361) {
 		}
 	}
 	
+	this.bounce = {
+		update: function(c) {
+			var currentTime = Date.now();
+			var positionInAnimation = (currentTime - c.startTime) / c.duration;
+			
+			log(positionInAnimation);
+			var xPosition = positionInAnimation * c.translate.x;
+			var yPosition = positionInAnimation * c.translate.y;
+			
+			c.target.style.left = c.origin.x + xPosition + 'px';
+			c.target.style.top  = c.origin.y + yPosition + 'px';
+
+			if (positionInAnimation <= 1)
+				requestAnimationFrame(function() {c.update(c)});
+			else {
+				c.target.style.left = c.origin.x + c.translate.x + 'px';
+				c.target.style.top  = c.origin.y + c.translate.y + 'px';
+				if (typeof c.callback != 'undefined' && c.callback != null)
+					c.callback(menu361);
+			}
+			
+		},
+		start: function(target, origin, translate, duration, callback) {
+			this.startTime = Date.now();
+			this.duration = duration;
+			this.origin = origin;
+			this.translate = translate;
+			this.callback = callback;
+			this.target = target;
+			var self = this;
+			requestAnimationFrame(function() {self.update(self);});
+		}
+	}
+	
 }
 
 var Menu361 = {
@@ -218,7 +252,7 @@ var Menu361 = {
 					y: parseInt(Math.round(Math.sin(toRadians(degrees)) * (handle.radius + parseInt(items[i].style.height) / 2)))
 				};
 				
-				anim.transition.start( items[i], origin, translate, DEFAULT_SUB_ANIMATION_TIME);
+				anim.bounce.start( items[i], origin, translate, DEFAULT_SUB_ANIMATION_TIME);
 				degrees += sections;
 			}
 			
