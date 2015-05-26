@@ -4,6 +4,10 @@
 	font-family: sans-serif;
 }
 
+body {
+	overflow: hidden;
+}
+
 #menu361 {
 	background-color: #eee;
 	width: 0px;
@@ -23,6 +27,11 @@
 	cursor: pointer;
 	position: absolute;
 	z-index: 99999;
+	box-shadow: 0px 1px 10px #333;
+}
+
+#menu361-handle:hover {
+	background-image: url("../img/menu-ico.png"), radial-gradient(#ff8c2f, #e66700);
 }
 
 #menu361 ul {
@@ -43,5 +52,5 @@
 }
 
 #menu361 li:hover {
-	background-color: #6666aa;
+	background-image: url("../img/image-ico.png"), radial-gradient(#28bb00, #219d00);
 }

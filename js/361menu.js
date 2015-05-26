@@ -1,8 +1,9 @@
 var DEBUG = true
-var DEFAULT_RADIUS = 32;
-var DEFAULT_SUBMENU_RADIUS = 16;
-var DEFAULT_TIME_TO_HIDE = 1000;
-var DEFAULT_SUB_ANIMATION_TIME = 200;
+var D_RADIUS = 32;
+var D_SUBMENU_RADIUS = 16;
+var D_TIME_TO_HIDE = 1000;
+var D_SUB_ANIMATION_TIME = 200;
+var D_SUBMENU_PADDING = 4;
 
 /*
 
@@ -13,8 +14,9 @@ var DEFAULT_SUB_ANIMATION_TIME = 200;
 	maxX: 0px,
 	maxY: 0px,
 	radius: 64px, 
-	subRadius: 16px;
-	timeToHide: 1000ms
+	subRadius: 16px,
+	submenuPadding: 4px,
+	timeToHide: 1000ms,
 	
 }
 
@@ -62,7 +64,7 @@ function MenuAnimation361 (menu361) {
 			var currentTime = Date.now();
 			var positionInAnimation = (currentTime - c.startTime) / c.duration;
 			
-			log(positionInAnimation);
+			//log(positionInAnimation);
 			var xPosition = positionInAnimation * c.translate.x;
 			var yPosition = positionInAnimation * c.translate.y;
 			
@@ -107,8 +109,10 @@ var Menu361 = {
 		var handle = document.createElement('div');
 		handle.id = 'menu361-handle';
 		
-		handle.style.width  = 2 * (p.radius ? p.radius : DEFAULT_RADIUS) + "px";
-		handle.style.height = 2 * (p.radius ? p.radius : DEFAULT_RADIUS) + "px";
+		handle.parameters = p;
+		
+		handle.style.width  = 2 * (p.radius ? p.radius : D_RADIUS) + "px";
+		handle.style.height = 2 * (p.radius ? p.radius : D_RADIUS) + "px";
 		
 		handle.onmousedown = Menu361.start; 
 		
@@ -135,11 +139,11 @@ var Menu361 = {
 		// Initializing submenus
 		handle.subMenu = {};
 		handle.subMenu.isActive = false;
-		handle.subMenu.timeToHide = p.timeToHide ? p.timeToHide : DEFAULT_TIME_TO_HIDE;
+		handle.subMenu.timeToHide = p.timeToHide ? p.timeToHide : D_TIME_TO_HIDE;
 		
 		// Positioning
 		handle.subMenu.items = handle.root.getElementsByTagName('li');
-		handle.subMenu.initialPosition = (p.radius ? p.radius : DEFAULT_RADIUS) - (p.subRadius ? p.subRadius : DEFAULT_SUBMENU_RADIUS);
+		handle.subMenu.initialPosition = (p.radius ? p.radius : D_RADIUS) - (p.subRadius ? p.subRadius : D_SUBMENU_RADIUS);
 		handle.subMenu.resetPosition = function(menu) {
 			var items = menu.subMenu.items;
 			for (var i = 0; i < items.length; i++) {
@@ -152,15 +156,15 @@ var Menu361 = {
 		var items = handle.subMenu.items;
 		for (var i = 0; i < items.length; i++) {
 			items[i].onmouseover = this.showSubMenu;
-			items[i].style.height = 2 * (p.subRadius ? p.subRadius : DEFAULT_SUBMENU_RADIUS) + 'px';
-			items[i].style.width  = 2 * (p.subRadius ? p.subRadius : DEFAULT_SUBMENU_RADIUS) + 'px';
+			items[i].style.height = 2 * (p.subRadius ? p.subRadius : D_SUBMENU_RADIUS) + 'px';
+			items[i].style.width  = 2 * (p.subRadius ? p.subRadius : D_SUBMENU_RADIUS) + 'px';
 		}
 		
 		handle.onmouseover = Menu361.showSubMenu;
 		handle.onmouseout  = Menu361.hideSubMenu;
 		
 		handle.root.insertBefore(handle, handle.root.firstChild);
-		handle.radius = p.radius ? p.radius : DEFAULT_RADIUS;
+		handle.radius = p.radius ? p.radius : D_RADIUS;
 		
 		Menu361.obj = handle;
 		
@@ -205,7 +209,7 @@ var Menu361 = {
 		var y = parseInt(handle.root.style.top);
 		var x = parseInt(handle.root.style.left);
 		var nx, ny;
-
+		
 		if (handle.minX != null) ex = Math.max(ex, handle.minMouseX);
 		if (handle.maxX != null) ex = Math.min(ex, handle.maxMouseX);
 		if (handle.minY != null) ey = Math.max(ey, handle.minMouseY);
@@ -213,7 +217,8 @@ var Menu361 = {
 
 		nx = x + (ex - handle.lastMouseX);
 		ny = y + (ey - handle.lastMouseY);
-
+		
+	
 		Menu361.obj.root.style.left = nx + "px";
 		Menu361.obj.root.style.top = ny + "px";
 		Menu361.obj.lastMouseX	= ex;
@@ -248,11 +253,11 @@ var Menu361 = {
 				
 				
 				var translate = {
-					x: parseInt(Math.round(Math.cos(toRadians(degrees)) * (handle.radius + parseInt(items[i].style.width) / 2 ))),
-					y: parseInt(Math.round(Math.sin(toRadians(degrees)) * (handle.radius + parseInt(items[i].style.height) / 2)))
+					x: parseInt(Math.round(Math.cos(toRadians(degrees)) * (handle.radius + parseInt(items[i].style.width) / 2 + (handle.parameters.submenuPadding ? handle.parameters.submenuPadding : D_SUBMENU_PADDING)))),
+					y: parseInt(Math.round(Math.sin(toRadians(degrees)) * (handle.radius + parseInt(items[i].style.height) / 2 + (handle.parameters.submenuPadding ? handle.parameters.submenuPadding : D_SUBMENU_PADDING))))
 				};
 				
-				anim.bounce.start( items[i], origin, translate, DEFAULT_SUB_ANIMATION_TIME);
+				anim.bounce.start( items[i], origin, translate, D_SUB_ANIMATION_TIME);
 				degrees += sections;
 			}
 			
@@ -287,11 +292,11 @@ var Menu361 = {
 						var origin = { x: parseInt(items[i].style.left), y: parseInt(items[i].style.top) };
 						
 						var destin = {
-							x: -parseInt(Math.round(Math.cos(toRadians(degrees)) * (handle.radius + parseInt(items[i].style.width) / 2 ))),
-							y: -parseInt(Math.round(Math.sin(toRadians(degrees)) * (handle.radius + parseInt(items[i].style.height) / 2)))
+							x: -parseInt(Math.round(Math.cos(toRadians(degrees)) * (handle.radius + parseInt(items[i].style.width)/2+(handle.parameters.submenuPadding ? handle.parameters.submenuPadding : D_SUBMENU_PADDING)))),
+							y: -parseInt(Math.round(Math.sin(toRadians(degrees)) * (handle.radius + parseInt(items[i].style.height)/2+(handle.parameters.submenuPadding ? handle.parameters.submenuPadding : D_SUBMENU_PADDING))))
 						};
 						
-						anim.transition.start( items[i], origin, destin, DEFAULT_SUB_ANIMATION_TIME, Menu361.obj.subMenu.resetPosition);
+						anim.transition.start( items[i], origin, destin, D_SUB_ANIMATION_TIME, Menu361.obj.subMenu.resetPosition);
 						degrees += sections;
 					}
 					
