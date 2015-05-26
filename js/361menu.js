@@ -237,6 +237,12 @@ var Menu361 = {
 		Menu361.obj.root.onDragEnd(	parseInt(Menu361.obj.root.style.left), parseInt(Menu361.obj.root.style.top));
 	},
 	
+	showSubMenuDelayed : function(anim, li, origin, translate, atime, dtime) {
+		setTimeout(function() { 
+			anim.bounce.start(li, origin, translate, atime);
+		}, dtime);
+	},
+	
 	showSubMenu : function() {
 		
 		if(DEBUG) log("Showing sub-menus...");
@@ -246,6 +252,7 @@ var Menu361 = {
 			var items = handle.subMenu.items;
 			var sections = Math.trunc(360 / items.length);
 			var degrees = -90;
+			var dtime = 0;
 			for (var i = 0; i < items.length; i++) {
 				var anim = new MenuAnimation361(handle);
 				
@@ -257,7 +264,8 @@ var Menu361 = {
 					y: parseInt(Math.round(Math.sin(toRadians(degrees)) * (handle.radius + parseInt(items[i].style.height) / 2 + (handle.parameters.submenuPadding ? handle.parameters.submenuPadding : D_SUBMENU_PADDING))))
 				};
 				
-				anim.bounce.start( items[i], origin, translate, D_SUB_ANIMATION_TIME);
+				Menu361.showSubMenuDelayed(anim, items[i], origin, translate, D_SUB_ANIMATION_TIME, 50 * i);
+				//anim.bounce.start( items[i], origin, translate, D_SUB_ANIMATION_TIME);
 				degrees += sections;
 			}
 			
